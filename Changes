@@ -1,5 +1,8 @@
 Revision history for Perl extension Email::MIME.
 
+1.2   Fri Apr  2 09:50:34 BST 2004
+    - Test fix from Richard Clamp
+
 0.01  Thu Apr 10 13:38:09 2003
 	- original version; created by h2xs 1.2 with options
 		-AX -n Email::MIME
