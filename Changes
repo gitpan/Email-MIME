@@ -1,5 +1,9 @@
 Revision history for Perl extension Email::MIME.
 
+1.8   Wed Aug 25 10:47:15 BST 2004
+    - Split filename and invent_filename to separate methods, for the
+      Stripper
+
 1.6   Sun Jul  4 21:15:07 BST 2004
     - Another fix by Casey - this time, don't decode on as_string
 

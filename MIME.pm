@@ -6,7 +6,7 @@ require 5.006;
 use strict;
 use Carp;
 use warnings;
-our $VERSION = '1.7';
+our $VERSION = '1.8';
 
 sub new {
     my $self = shift->SUPER::new(@_);
@@ -107,9 +107,7 @@ sub debug_structure {
     return $rv;
 }
 
-my $gname = 0;
 my %gcache;
-
 sub filename {
     my ($self, $force) = @_;
     return $gcache{$self} if exists $gcache{$self};
@@ -120,13 +118,20 @@ sub filename {
     my $name = $attrs->{filename}
                 || $self->{ct}{attributes}{name};
     return $name if $name or !$force;
-    # Make shit up!
+    return $gcache{$self} = 
+        $self->invent_filename($self->{ct}->{discrete} ."/".
+                               $self->{ct}->{composite});
+}
+
+my $gname = 0;
+
+sub invent_filename {
+    my ($self, $ct) = @_;
     require MIME::Types;
-    my $type = MIME::Types->new->type($self->{ct}->{discrete} ."/".
-                                      $self->{ct}->{composite});
+    my $type = MIME::Types->new->type($ct);
     my $ext = $type && (($type->extensions)[0]);
     $ext ||= "dat";
-    return $gcache{$self} = "attachment-$$-".$gname++.".$ext";
+    return "attachment-$$-".$gname++.".$ext";
 }
 
 1;
