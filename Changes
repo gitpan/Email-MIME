@@ -1,5 +1,8 @@
 Revision history for Perl extension Email::MIME.
 
+1.5   Thu Jul  1 18:38:06 BST 2004
+    - That didn't actually fix the bug at all.
+
 1.4   Thu Jul  1 18:35:32 BST 2004
     - Only parse attributes if there are some!
 

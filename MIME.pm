@@ -6,7 +6,7 @@ require 5.006;
 use strict;
 use Carp;
 use warnings;
-our $VERSION = '1.4';
+our $VERSION = '1.5';
 
 sub new {
     my $self = shift->SUPER::new(@_);
@@ -108,8 +108,8 @@ sub filename {
     return $gcache{$self} if exists $gcache{$self};
     
     my $dis = $self->header("Content-Disposition");
-    $dis =~ s/^.*?;// 
-         and my $attrs = Email::MIME::ContentType::_parse_attributes($dis);
+    my $attrs = $dis =~ s/^.*?;// 
+         ? Email::MIME::ContentType::_parse_attributes($dis) : {};
     my $name = $attrs->{filename}
                 || $self->{ct}{attributes}{name};
     return $name if $name or !$force;
