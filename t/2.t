@@ -25,3 +25,6 @@ like($filename, qr/attachment-\d+-0\.(?:$txt_ext)/, "Filename correct");
 my $filename2 = $parts[1]->filename(1);
 like($filename2, qr/attachment-\d+-1\.html/, "Filename correct");
 is($filename,$parts[0]->filename(1), "Filename consistent");
+my $image = ($obj->parts)[1];
+is( $image->filename, "image001.gif", "got the image chunk" );
+unlike( $image->body_raw, qr{NextPart}, "and not the epilogue" );

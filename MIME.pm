@@ -6,7 +6,7 @@ require 5.006;
 use strict;
 use Carp;
 use warnings;
-our $VERSION = '1.2';
+our $VERSION = '1.3';
 
 sub new {
     my $self = shift->SUPER::new(@_);
@@ -62,7 +62,9 @@ sub parts_multipart {
     my $self = shift;
     my $boundary = $self->{ct}->{attributes}->{boundary};
     $self->{body_raw} = $self->SUPER::body;
-    my @bits = split /^--\Q$boundary\E\s*$/sm, $self->body_raw;
+    # rfc1521 7.2.1
+    my ($body, $epilogue) = split /^--\Q$boundary\E--\s*$/sm, $self->body_raw, 2;
+    my @bits = split /^--\Q$boundary\E\s*$/sm, $body;
     delete $self->{body};
 
     # This might be a hack
