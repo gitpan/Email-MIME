@@ -6,7 +6,7 @@ require 5.006;
 use strict;
 use Carp;
 use warnings;
-our $VERSION = '1.3';
+our $VERSION = '1.4';
 
 sub new {
     my $self = shift->SUPER::new(@_);
@@ -60,7 +60,7 @@ sub body_raw {
 
 sub parts_multipart {
     my $self = shift;
-    my $boundary = $self->{ct}->{attributes}->{boundary};
+    my $boundary = $self->{ct}->{attributes}->{boundary} || "";
     $self->{body_raw} = $self->SUPER::body;
     # rfc1521 7.2.1
     my ($body, $epilogue) = split /^--\Q$boundary\E--\s*$/sm, $self->body_raw, 2;
@@ -108,8 +108,8 @@ sub filename {
     return $gcache{$self} if exists $gcache{$self};
     
     my $dis = $self->header("Content-Disposition");
-    $dis =~ s/^.*?;//;
-    my $attrs = Email::MIME::ContentType::_parse_attributes($dis);
+    $dis =~ s/^.*?;// 
+         and my $attrs = Email::MIME::ContentType::_parse_attributes($dis);
     my $name = $attrs->{filename}
                 || $self->{ct}{attributes}{name};
     return $name if $name or !$force;
