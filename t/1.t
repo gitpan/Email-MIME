@@ -17,3 +17,11 @@ open(GIF, "t/att-1.gif") or die $!;
 my $gif = <GIF>;
 is($body, $gif, "Externally consistent");
 is($obj->filename, "1.gif", "Filename is correct");
+
+my $header  = $obj->header('X-MultiHeader');
+my @headers = $obj->header('X-MultiHeader');
+
+ok $header, 'got back a header in scalar context';
+ok !ref($header), 'header in scalar context is not ref';
+
+is scalar(@headers), 3, 'got all three back in list context';

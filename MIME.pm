@@ -6,7 +6,7 @@ require 5.006;
 use strict;
 use Carp;
 use warnings;
-our $VERSION = '1.8';
+our $VERSION = '1.81';
 
 sub new {
     my $self = shift->SUPER::new(@_);
@@ -17,8 +17,8 @@ sub new {
 
 sub as_string {
     my $self = shift;
-    return $self->_headers_as_string.($self->{mycrlf}
-         || "\n" # sop.
+    return $self->_headers_as_string.(
+      $self->{mycrlf} || "\n"
     ).$self->body_raw;
 }
 
@@ -85,17 +85,24 @@ sub parts_multipart {
 sub force_decode_hook { 0 }
 sub decode_hook { return $_[1] }
 sub content_type { shift->header("Content-type"); }
-sub header { 
-    my $header = shift->SUPER::header(@_);
-    if ($header !~ /=\?/) { return $header }
-    if (eval { require Encode }) { 
-        Encode::decode("MIME-Header", $header);
-    } else {
-        require MIME::Words;
-        MIME::Words::decode_mimewords($header);
+sub header {
+    my $self   = shift;
+    my @header = $self->SUPER::header(@_);
+    foreach my $header ( @header ) {
+        next unless $header =~ /=\?/;
+        $header = $self->_header_decode($header);
     }
-        
+    return wantarray ? (@header) : $header[0];
 }
+*_header_decode =   eval { require Encode }
+                  ? \&_header_decode_encode
+                  : do {
+                         require MIME::Words;
+                         \&_header_decode_mimewords;
+                       };
+
+sub _header_decode_encode    { Encode::decode("MIME-Header", $_[1]) }
+sub _header_decode_mimewords { MIME::Words::decode_mimewords($_[1]) }
 
 sub debug_structure {
     my ($self, $level) = @_;
@@ -203,7 +210,9 @@ filename if one is not found in the MIME headers.
 
 =head1 AUTHOR
 
-Simon Cozens, C<simon@cpan.org>
+Casey West, C<casey@geeknest.com>
+
+Simon Cozens, C<simon@cpan.org> (retired)
 
 You may distribute this module under the terms of the Artistic or GPL
 licenses.

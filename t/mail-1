@@ -1,4 +1,7 @@
 From simon@simon-cozens.org Tue Apr 15 20:24:47 2003
+X-MultiHeader: one
+X-MultiHeader: two
+X-MultiHeader: three
 From: Simon Cozens <simon@simon-cozens.org>
 To: test
 Bcc: simon@twingle.net

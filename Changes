@@ -1,5 +1,11 @@
 Revision history for Perl extension Email::MIME.
 
+1.81    2004-10-29
+
+  - Fix bug in headers, now returns list in list context.
+  - Dependency updates.
+  - Author change.
+
 1.8   Wed Aug 25 10:47:15 BST 2004
     - Split filename and invent_filename to separate methods, for the
       Stripper

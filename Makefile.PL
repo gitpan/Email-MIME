@@ -10,11 +10,15 @@ WriteMakefile(
     'NAME'		=> 'Email::MIME',
     'VERSION_FROM'	=> 'MIME.pm', # finds $VERSION
     'PREREQ_PM'		=> {
-        Email::Simple => 1.7,
-        Email::MIME::Encodings => 1.0,
-        Email::MIME::ContentType => 1.0,
-        Test::More => 0,  # Testing
-        ($] < 5.00703 ? (MIME::Words => 0 ) : (Encode => 0)),
-        MIME::Types => 0, # Sad, really.
+                                 'Email::MIME::ContentType' => '1.0',
+                                 'Email::MIME::Encodings' => '1.3',
+                                 'Email::Simple' => '1.91',
+                                 'MIME::Types' => '1.13',
+                                 'Test::More' => '0.47',
+
+        (
+          $] < 5.00703 ? ('MIME::Words' => '5.404' )
+                       : ('Encode' => '1.9801')
+        ),
     }, # e.g., Module::Name => 1.1
 );
