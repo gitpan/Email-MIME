@@ -6,13 +6,18 @@ require 5.006;
 use strict;
 use Carp;
 use warnings;
-our $VERSION = '1.5';
+our $VERSION = '1.6';
 
 sub new {
     my $self = shift->SUPER::new(@_);
     $self->{ct} = parse_content_type($self->content_type);
     $self->parts;
     return $self;
+}
+
+sub as_string {
+    my $self = shift;
+    return $self->_headers_as_string."\r\n".$self->body_raw;
 }
 
 sub parts {

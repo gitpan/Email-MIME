@@ -1,5 +1,8 @@
 Revision history for Perl extension Email::MIME.
 
+1.6   Sun Jul  4 21:15:07 BST 2004
+    - Another fix by Casey - this time, don't decode on as_string
+
 1.5   Thu Jul  1 18:38:06 BST 2004
     - That didn't actually fix the bug at all.
 
