@@ -10,7 +10,7 @@ WriteMakefile(
     'NAME'		=> 'Email::MIME',
     'VERSION_FROM'	=> 'MIME.pm', # finds $VERSION
     'PREREQ_PM'		=> {
-        Email::Simple => 1.61,
+        Email::Simple => 1.7,
         Email::MIME::Encodings => 1.0,
         Email::MIME::ContentType => 1.0,
         Test::More => 0,  # Testing

@@ -1,13 +1,13 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Email-MIME
-version:      1.6
+version:      1.7
 version_from: MIME.pm
 installdirs:  site
 requires:
     Email::MIME::ContentType:      1
     Email::MIME::Encodings:        1
-    Email::Simple:                 1.61
+    Email::Simple:                 1.7
     MIME::Types:                   0
     MIME::Words:                   0
     Test::More:                    0
