@@ -6,7 +6,7 @@ require 5.006;
 use strict;
 use Carp;
 use warnings;
-our $VERSION = '1.0_01';
+our $VERSION = '1.1';
 
 sub new {
     my $self = shift->SUPER::new(@_);
@@ -76,6 +76,17 @@ sub parts_multipart {
 sub force_decode_hook { 0 }
 sub decode_hook { return $_[1] }
 sub content_type { shift->header("Content-type"); }
+sub header { 
+    my $header = shift->SUPER::header(@_);
+    if ($header !~ /=\?/) { return $header }
+    if (eval { require Encode }) { 
+        Encode::decode("MIME-Header", $header);
+    } else {
+        require MIME::Words;
+        MIME::Words::decode_mimewords($header);
+    }
+        
+}
 
 sub debug_structure {
     my ($self, $level) = @_;
@@ -85,6 +96,28 @@ sub debug_structure {
     my @parts = $self->parts;
     if (@parts > 1) { $rv .= $_->debug_structure($level +1) for @parts; }
     return $rv;
+}
+
+my $gname = 0;
+my %gcache;
+
+sub filename {
+    my ($self, $force) = @_;
+    return $gcache{$self} if exists $gcache{$self};
+    
+    my $dis = $self->header("Content-Disposition");
+    $dis =~ s/^.*?;//;
+    my $attrs = Email::MIME::ContentType::_parse_attributes($dis);
+    my $name = $attrs->{filename}
+                || $self->{ct}{attributes}{name};
+    return $name if $name or !$force;
+    # Make shit up!
+    require MIME::Types;
+    my $type = MIME::Types->new->type($self->{ct}->{discrete} ."/".
+                                      $self->{ct}->{composite});
+    my $ext = $type && (($type->extensions)[0]);
+    $ext ||= "dat";
+    return $gcache{$self} = "attachment-$$-".$gname++.".$ext";
 }
 
 1;
@@ -112,7 +145,7 @@ Email::MIME - Easy MIME message parsing.
 This is an extension of the L<Email::Simple> module, to handle MIME
 encoded messages. It takes a message as a string, splits it up into its
 constituent parts, and allows you access to various parts of the
-message.
+message. Headers are decoded from MIME encoding.
 
 =head1 NOTE
 
@@ -147,6 +180,13 @@ encoding.
 
 This is a shortcut for access to the content type header.
 
+=head2 filename
+
+This provides the suggested filename for the attachment part. Normally
+it will return the filename from the headers, but if C<filename> is
+passed a true parameter, it will generate an appropriate "stable"
+filename if one is not found in the MIME headers.
+
 =head1 AUTHOR
 
 Simon Cozens, C<simon@cpan.org>
@@ -156,8 +196,8 @@ licenses.
 
 =head1 THANKS
 
-This module was generously sponsored by Best Practical.
-(http://www.bestpractical.com/)
+This module was generously sponsored by Best Practical
+(http://www.bestpractical.com/) and Pete Sergeant.
 
 =head1 SEE ALSO
 

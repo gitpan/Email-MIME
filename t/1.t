@@ -16,3 +16,4 @@ is($body, Email::MIME::Encodings::decode(base64 => $obj->body_raw),
 open(GIF, "t/att-1.gif") or die $!;
 my $gif = <GIF>;
 is($body, $gif, "Externally consistent");
+is($obj->filename, "1.gif", "Filename is correct");

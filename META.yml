@@ -1,12 +1,16 @@
+# http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Email-MIME
-version:      1.0_01
+version:      1.1
 version_from: MIME.pm
 installdirs:  site
 requires:
+    Email::MIME::ContentType:      1
     Email::MIME::Encodings:        1
     Email::Simple:                 1.61
-    Email::MIME::ContentType:      1
+    MIME::Types:                   0
+    MIME::Words:                   0
+    Test::More:                    0
 
 distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.12
+generated_by: ExtUtils::MakeMaker version 6.21

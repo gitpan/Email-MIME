@@ -7,7 +7,7 @@ undef $/;
 my $string = <IN>;
 my $obj = Email::MIME->new($string);
 isa_ok($obj, "Email::MIME");
-is( $obj->debug_structure, <<EOF , "structure checks out");
+is($obj->debug_structure,<<EOF);
 + multipart/related; boundary="----=_NextPart_000_0001_01C3D13C.8846CC50"
      + multipart/alternative; boundary="----=_NextPart_001_0002_01C3D13C.884B8740"
           + text/plain; charset="us-ascii"
@@ -15,5 +15,9 @@ is( $obj->debug_structure, <<EOF , "structure checks out");
      + application/octet-stream; name="image001.gif"
 EOF
 
-is($obj->body, "This is a multi-part message in MIME format.\n\n", "body is correct");
-like((($obj->parts)[0]->parts)[0]->body, qr/^Happy New Year/, "message is correct");
+my @parts = ($obj->parts)[0]->parts;
+my $filename = $parts[0]->filename(1);
+like($filename, qr/attachment-\d+-0\.asc/, "Filename correct");
+my $filename2 = $parts[1]->filename(1);
+like($filename2, qr/attachment-\d+-1\.html/, "Filename correct");
+is($filename,$parts[0]->filename(1), "Filename consistent");
