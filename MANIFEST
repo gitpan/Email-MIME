@@ -1,0 +1,10 @@
+Changes
+MANIFEST
+MIME.pm
+Makefile.PL
+t/1.t
+t/2.t
+t/att-1.gif
+t/mail-1
+t/mail-2
+META.yml                                Module meta-data (added by MakeMaker)

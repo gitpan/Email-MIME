@@ -1,0 +1,12 @@
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         Email-MIME
+version:      1.0_01
+version_from: MIME.pm
+installdirs:  site
+requires:
+    Email::MIME::Encodings:        1
+    Email::Simple:                 1.61
+    Email::MIME::ContentType:      1
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.12
