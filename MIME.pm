@@ -6,7 +6,7 @@ require 5.006;
 use strict;
 use Carp;
 use warnings;
-our $VERSION = '1.81';
+our $VERSION = '1.82';
 
 sub new {
     my $self = shift->SUPER::new(@_);
@@ -67,7 +67,9 @@ sub body_raw {
 
 sub parts_multipart {
     my $self = shift;
-    my $boundary = $self->{ct}->{attributes}->{boundary} || "";
+    my $boundary = $self->{ct}->{attributes}->{boundary};
+    return $self->parts_single_part unless $boundary;
+
     $self->{body_raw} = $self->SUPER::body;
     # rfc1521 7.2.1
     my ($body, $epilogue) = split /^--\Q$boundary\E--\s*$/sm, $self->body_raw, 2;
