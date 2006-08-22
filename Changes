@@ -1,5 +1,9 @@
 Revision history for Perl extension Email::MIME.
 
+1.851   2006-08-22
+
+  - test coverage and layout improvements by SSORICHE
+
 1.85    2006-07-13
 
   - avoid memory leak due to circular references

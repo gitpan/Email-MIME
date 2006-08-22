@@ -6,7 +6,7 @@ require 5.006;
 use strict;
 use Carp;
 use warnings;
-our $VERSION = '1.85';
+our $VERSION = '1.851';
 
 sub new {
     my $self = shift->SUPER::new(@_);
@@ -80,11 +80,10 @@ sub parts_multipart {
     delete $self->{body};
 
     # This might be a hack
-    $self->{body} = shift @bits if $bits[0] !~ /.*:.*/;
-
+    $self->{body } = shift @bits if $bits[0] !~ /.*:.*/;
     $self->{parts} = [ map { (ref $self)->new($_) } @bits ];
-    return @{$self->{parts}};
 
+    return @{$self->{parts}};
 }
 
 sub force_decode_hook { 0 }
