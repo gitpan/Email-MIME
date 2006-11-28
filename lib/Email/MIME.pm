@@ -13,13 +13,13 @@ Email::MIME - Easy MIME message parsing.
 
 =head1 VERSION
 
-version 1.856
+version 1.857
 
- $Id: /my/pep/Email-MIME/trunk/lib/Email/MIME.pm 28543 2006-11-28T01:51:37.957759Z rjbs  $
+ $Id: /my/pep/Email-MIME/trunk/lib/Email/MIME.pm 28547 2006-11-28T02:34:24.479604Z rjbs  $
 
 =cut
 
-our $VERSION = '1.856';
+our $VERSION = '1.857';
 
 sub new {
     my $self = shift->SUPER::new(@_);
@@ -61,7 +61,7 @@ sub fill_parts {
 
 sub body {
     my $self = shift;
-    my $body = $self->{body};
+    my $body = $self->SUPER::body;
     my $cte = $self->header("Content-Transfer-Encoding");
     return $body unless $cte;
     if (!$self->force_decode_hook and $cte =~ /^7bit|8bit|binary/i) {
@@ -96,7 +96,7 @@ sub parts_multipart {
       = split /^--\Q$boundary\E--\s*$/sm, $self->body_raw, 2;
 
     my @bits = split /^--\Q$boundary\E\s*$/sm, ($body||'');
-    delete $self->{body};
+    $self->SUPER::body_set(undef);
 
     # This is a horrible hack, although it's debateable whether it was better
     # or worse when it was $self->{body} = shift @bits ... -- rjbs, 2006-11-27
