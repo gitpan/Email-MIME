@@ -6,7 +6,20 @@ require 5.006;
 use strict;
 use Carp;
 use warnings;
-our $VERSION = '1.855';
+
+=head1 NAME
+
+Email::MIME - Easy MIME message parsing.
+
+=head1 VERSION
+
+version 1.856
+
+ $Id: /my/pep/Email-MIME/trunk/lib/Email/MIME.pm 28543 2006-11-28T01:51:37.957759Z rjbs  $
+
+=cut
+
+our $VERSION = '1.856';
 
 sub new {
     my $self = shift->SUPER::new(@_);
@@ -18,13 +31,15 @@ sub new {
 sub as_string {
     my $self = shift;
     return $self->__head->as_string
-         . ($self->{mycrlf} || "\n")
+         . ($self->{mycrlf} || "\n") # XXX: replace with ->crlf
          . $self->body_raw;
 }
 
 sub parts {
     my $self = shift;
-    if (!$self->{parts}) { $self->fill_parts }
+    if (!$self->{parts}) {
+      $self->fill_parts;
+    }
 
     my @parts = @{$self->{parts}};
        @parts = $self unless @parts;
@@ -33,8 +48,10 @@ sub parts {
 
 sub fill_parts {
     my $self = shift;
-    if ($self->{ct}{discrete} eq "multipart" 
-        or $self->{ct}{discrete} eq "message") {
+    if (
+        $self->{ct}{discrete} eq "multipart" 
+        or $self->{ct}{discrete} eq "message"
+    ) {
         $self->parts_multipart;
     } else {
         $self->parts_single_part;
@@ -75,12 +92,15 @@ sub parts_multipart {
 
     $self->{body_raw} = $self->SUPER::body;
     # rfc1521 7.2.1
-    my ($body, $epilogue) = split /^--\Q$boundary\E--\s*$/sm, $self->body_raw, 2;
+    my ($body, $epilogue)
+      = split /^--\Q$boundary\E--\s*$/sm, $self->body_raw, 2;
+
     my @bits = split /^--\Q$boundary\E\s*$/sm, ($body||'');
     delete $self->{body};
 
-    # This might be a hack
-    $self->{body} = shift @bits if ($bits[0]||'') !~ /.*:.*/;
+    # This is a horrible hack, although it's debateable whether it was better
+    # or worse when it was $self->{body} = shift @bits ... -- rjbs, 2006-11-27
+    $self->SUPER::body_set(shift @bits) if ($bits[0]||'') !~ /.*:.*/;
     $self->{parts} = [ map { (ref $self)->new($_) } @bits ];
 
     return @{$self->{parts}};
@@ -148,11 +168,6 @@ sub invent_filename {
 1;
 
 __END__
-# Below is stub documentation for your module. You better edit it!
-
-=head1 NAME
-
-Email::MIME - Easy MIME message parsing.
 
 =head1 SYNOPSIS
 
@@ -201,6 +216,16 @@ is a multi-part message in MIME format."
 This returns the body of the object, but doesn't decode the transfer
 encoding.
 
+=head2 decode_hook
+
+This method is called before the L<Email::MIME::Encodings> C<decode> method, to
+decode the body of non-binary messages (or binary messages, if the
+C<force_decode_hook> method returns true).  By default, this method does
+nothing, but subclasses may define behavior.
+
+This method could be used to implement the decryption of content in secure
+email, for example.
+
 =head2 content_type
 
 This is a shortcut for access to the content type header.
@@ -211,6 +236,40 @@ This provides the suggested filename for the attachment part. Normally
 it will return the filename from the headers, but if C<filename> is
 passed a true parameter, it will generate an appropriate "stable"
 filename if one is not found in the MIME headers.
+
+=head2 invent_filename
+
+  my $filename = Email::MIME->invent_filename($content_type);
+
+This routine is used by C<filename> to generate filenames for attached files.
+It will attempt to choose a reasonable extension, falling back to F<dat>.
+
+=head2 debug_structure
+
+  my $description = $email->debug_structure;
+
+This method returns a string that describes the structure of the MIME entity.
+For example:
+
+  + multipart/alternative; boundary="=_NextPart_2"; charset="BIG-5"
+    + text/plain
+    + text/html
+
+=head1 TODO
+
+All of the Email::MIME-specific guts should move to a single entry on the
+object's guts.  This will require changes to both Email::MIME and
+L<Email::MIME::Modifier>, sadly.
+
+=head1 SEE ALSO
+
+L<Email::Simple>, L<Email::MIME::Modifier>, L<Email::MIME:Creator>.
+
+=head1 PERL EMAIL PROJECT
+
+This module is maintained by the Perl Email Project
+
+L<http://emailproject.perl.org/wiki/Email::MIME>
 
 =head1 AUTHOR
 
@@ -225,9 +284,5 @@ licenses.
 
 This module was generously sponsored by Best Practical
 (http://www.bestpractical.com/) and Pete Sergeant.
-
-=head1 SEE ALSO
-
-L<Email::Simple>.
 
 =cut
