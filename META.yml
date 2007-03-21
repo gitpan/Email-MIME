@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Email-MIME
-version:             1.858
+version:             1.859
 abstract:            ~
 license:             perl
 generated_by:        ExtUtils::MakeMaker version 6.31
