@@ -15,13 +15,13 @@ Email::MIME - Easy MIME message parsing.
 
 =head1 VERSION
 
-version 1.859
+version 1.860
 
- $Id: /my/pep/Email-MIME/trunk/lib/Email/MIME.pm 30991 2007-03-20T22:20:55.126786Z rjbs  $
+ $Id: /my/pep/Email-MIME/trunk/lib/Email/MIME.pm 32023 2007-07-14T02:14:59.970497Z rjbs  $
 
 =cut
 
-our $VERSION = '1.859';
+our $VERSION = '1.860';
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -79,6 +79,7 @@ sub body {
   $body = $self->decode_hook($body) if $self->can("decode_hook");
 
   # For S/MIME, etc.
+  $cte =~ s/;.+//;
 
   $body = Email::MIME::Encodings::decode($cte, $body);
   return $body;
