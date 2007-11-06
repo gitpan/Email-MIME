@@ -15,13 +15,13 @@ Email::MIME - Easy MIME message parsing.
 
 =head1 VERSION
 
-version 1.860
+version 1.861
 
- $Id: /my/pep/Email-MIME/trunk/lib/Email/MIME.pm 32023 2007-07-14T02:14:59.970497Z rjbs  $
+ $Id: MIME.pm 780 2007-07-20 03:22:05Z rjbs@cpan.org $
 
 =cut
 
-our $VERSION = '1.860';
+our $VERSION = '1.861';
 
 sub new {
   my $self = shift->SUPER::new(@_);
