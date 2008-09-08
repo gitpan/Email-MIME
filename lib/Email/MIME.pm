@@ -3,10 +3,12 @@ use strict;
 use warnings;
 
 package Email::MIME;
+use Email::Simple 2.004;
 use base qw(Email::Simple);
 
 use Email::MIME::ContentType;
 use Email::MIME::Encodings;
+use Email::MIME::Header;
 use Carp;
 
 =head1 NAME
@@ -15,13 +17,13 @@ Email::MIME - Easy MIME message parsing.
 
 =head1 VERSION
 
-version 1.861
+version 1.861_01
 
- $Id: MIME.pm 780 2007-07-20 03:22:05Z rjbs@cpan.org $
+ $Id: MIME.pm 967 2008-09-08 22:21:59Z rjbs@cpan.org $
 
 =cut
 
-our $VERSION = '1.861';
+our $VERSION = '1.861_01';
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -98,7 +100,14 @@ sub body_raw {
 sub parts_multipart {
   my $self     = shift;
   my $boundary = $self->{ct}->{attributes}->{boundary};
-  return $self->parts_single_part unless $boundary;
+
+  # Take a message, join all its lines together.  Now try to Email::MIME->new
+  # it with 1.861 or earlier.  Death!  It tries to recurse endlessly on the
+  # body, because every time it splits on boundary it gets itself. Obviously
+  # that means it's a bogus message, but a mangled result (or exception) is
+  # better than endless recursion. -- rjbs, 2008-01-07
+  return $self->parts_single_part
+    unless $boundary and $self->body_raw =~ /^--\Q$boundary\E\s*$/sm;
 
   $self->{body_raw} = $self->SUPER::body;
 
@@ -109,8 +118,10 @@ sub parts_multipart {
 
   $self->SUPER::body_set(undef);
 
-  # This is a horrible hack, although it's debateable whether it was better
-  # or worse when it was $self->{body} = shift @bits ... -- rjbs, 2006-11-27
+  # If there are no headers in the potential MIME part, it's just part of the
+  # body.  This is a horrible hack, although it's debateable whether it was
+  # better or worse when it was $self->{body} = shift @bits ... -- rjbs,
+  # 2006-11-27
   $self->SUPER::body_set(shift @bits) if ($bits[0] || '') !~ /.*:.*/;
 
   my $bits = @bits;
@@ -130,26 +141,6 @@ sub parts_multipart {
 sub force_decode_hook { 0 }
 sub decode_hook       { return $_[1] }
 sub content_type      { scalar shift->header("Content-type"); }
-
-sub header {
-  my $self   = shift;
-  my @header = $self->SUPER::header(@_);
-  foreach my $header (@header) {
-    next unless $header =~ /=\?/;
-    $header = $self->_header_decode($header);
-  }
-  return wantarray ? (@header) : $header[0];
-}
-*_header_decode =
-  eval { require Encode }
-  ? \&_header_decode_encode
-  : do {
-  require MIME::Words;
-  \&_header_decode_mimewords;
-  };
-
-sub _header_decode_encode { Encode::decode("MIME-Header", $_[1]) }
-sub _header_decode_mimewords { MIME::Words::decode_mimewords($_[1]) }
 
 sub debug_structure {
   my ($self, $level) = @_;
@@ -188,6 +179,8 @@ sub invent_filename {
   $ext ||= "dat";
   return "attachment-$$-" . $gname++ . ".$ext";
 }
+
+sub default_header_class { 'Email::MIME::Header' }
 
 1;
 
@@ -295,7 +288,7 @@ L<Email::MIME::Modifier>, sadly.
 
 =head1 SEE ALSO
 
-L<Email::Simple>, L<Email::MIME::Modifier>, L<Email::MIME:Creator>.
+L<Email::Simple>, L<Email::MIME::Modifier>, L<Email::MIME::Creator>.
 
 =head1 PERL EMAIL PROJECT
 
