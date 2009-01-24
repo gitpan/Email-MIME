@@ -1,18 +1,26 @@
 --- #YAML:1.0
-name:                Email-MIME
-version:             1.861_01
-abstract:            ~
-license:             perl
-author:              ~
-generated_by:        ExtUtils::MakeMaker version 6.44
-distribution_type:   module
-requires:     
-    Email::MIME::ContentType:      1.011
-    Email::MIME::Encodings:        1.3
-    Email::Simple:                 2.004
-    Encode:                        1.9801
-    MIME::Types:                   1.13
-    Test::More:                    0.47
+name:               Email-MIME
+version:            1.862
+abstract:           ~
+author:  []
+license:            perl
+distribution_type:  module
+configure_requires:
+    ExtUtils::MakeMaker:  0
+requires:
+    Email::MIME::ContentType:  1.011
+    Email::MIME::Encodings:  1.3
+    Email::Simple:        2.004
+    Encode:               1.9801
+    MIME::Types:          1.13
+    Test::More:           0.47
+resources:
+    Repository:  http://github.com/rjbs/email-mime
+no_index:
+    directory:
+        - t
+        - inc
+generated_by:       ExtUtils::MakeMaker version 6.48
 meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
-    version: 1.3
+    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
+    version:  1.4
