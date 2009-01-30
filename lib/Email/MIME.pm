@@ -17,11 +17,11 @@ Email::MIME - Easy MIME message parsing.
 
 =head1 VERSION
 
-version 1.862
+version 1.863
 
 =cut
 
-our $VERSION = '1.862';
+our $VERSION = '1.863';
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -300,8 +300,10 @@ Casey West, C<casey@geeknest.com>
 
 Simon Cozens, C<simon@cpan.org> (retired)
 
-You may distribute this module under the terms of the Artistic or GPL
-licenses.
+This software is copyright (c) 2004 by Simon Cozens.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as perl itself.
 
 =head1 THANKS
 
