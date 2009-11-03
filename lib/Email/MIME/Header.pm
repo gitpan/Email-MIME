@@ -3,7 +3,7 @@ use warnings;
 package Email::MIME::Header;
 use base 'Email::Simple::Header';
 
-our $VERSION = '1.863';
+our $VERSION = '1.900';
 
 use Encode 1.9801;
 
@@ -26,6 +26,15 @@ changes:
 
 =back
 
+Note that C<header_set> does not do encoding for you, and expects an
+encoded header.  Thus, C<header_set> round-trips with C<header_raw>,
+not C<header>!  Be sure to properly encode your headers with
+C<Encode::encode('MIME-Header', $value)> before passing them to
+C<header_set>.
+
+Alternately, if you have Unicode (character) strings to set in headers, use the
+C<header_str_set> method.
+
 =cut
 
 sub header {
@@ -43,6 +52,14 @@ sub header_raw {
   Carp::croak "header_raw may not be used to set headers" if @_ > 2;
   my ($self, $header) = @_;
   return $self->SUPER::header($header);
+}
+
+sub header_str_set {
+  my ($self, $name, @vals) = @_;
+
+  my @values = map { Encode::encode('MIME-Q', $_, 1) } @vals;
+
+  $self->header_set($name => @values);
 }
 
 sub _header_decode_str {

@@ -1,5 +1,9 @@
 Revision history for Perl extension Email::MIME.
 
+1.900   2009-11-0
+        merge in Email-MIME-Modifier and Email-MIME-Creator
+        add better support for Unicode with body_str, header_str_set, etc.
+
 1.863   2009-01-30
         no code changes
         add strangely missing copyright information

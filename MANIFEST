@@ -1,19 +1,33 @@
 Changes
 lib/Email/MIME.pm
+lib/Email/MIME/Creator.pm
 lib/Email/MIME/Header.pm
+lib/Email/MIME/Modifier.pm
+LICENSE
 Makefile.PL
 MANIFEST			This list of files
 README
-t/1.t
-t/2.t
-t/3.t
+t/auto_create.t
+t/basic.t
+t/content_id.t
+t/ct_attrs.t
+t/dispo.t
+t/disposition.t
+t/encoding.t
+t/files/readme.txt.gz
 t/Mail/att-1.gif
 t/Mail/joejob
 t/Mail/mail-1
 t/Mail/mail-2
 t/Mail/nested-parts
+t/multipart.t
 t/nested-parts.t
+t/part-encs.t
+t/parts.t
+t/perl-minver.t
 t/pod-coverage.t
 t/pod.t
-LICENSE
+t/read-nested.t
+t/singlepart.t
+t/unicode.t
 META.yml                                 Module meta-data (added by MakeMaker)
