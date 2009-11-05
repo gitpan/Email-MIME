@@ -10,7 +10,7 @@ use Carp ();
 use Email::MessageID;
 use Email::MIME::Creator;
 use Email::MIME::ContentType;
-use Email::MIME::Encodings;
+use Email::MIME::Encodings 1.313;
 use Email::MIME::Header;
 use Email::MIME::Modifier;
 use Encode ();
@@ -21,7 +21,7 @@ Email::MIME - Easy MIME message parsing.
 
 =head1 VERSION
 
-version 1.900
+version 1.901
 
 =head1 SYNOPSIS
 
@@ -111,7 +111,7 @@ very long. Added to that, you have:
 
 =cut
 
-our $VERSION = '1.900';
+our $VERSION = '1.901';
 
 use vars qw[$CREATOR];
 $CREATOR = 'Email::MIME::Creator';
