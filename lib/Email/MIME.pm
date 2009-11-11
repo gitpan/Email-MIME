@@ -21,7 +21,7 @@ Email::MIME - Easy MIME message parsing.
 
 =head1 VERSION
 
-version 1.901
+version 1.902
 
 =head1 SYNOPSIS
 
@@ -111,7 +111,7 @@ very long. Added to that, you have:
 
 =cut
 
-our $VERSION = '1.901';
+our $VERSION = '1.902';
 
 use vars qw[$CREATOR];
 $CREATOR = 'Email::MIME::Creator';
@@ -288,16 +288,19 @@ sub fill_parts {
 sub body {
   my $self = shift;
   my $body = $self->SUPER::body;
-  my $cte  = $self->header("Content-Transfer-Encoding");
+  my $cte  = $self->header("Content-Transfer-Encoding") || '';
+  
+  $cte =~ s/\A\s+//;
+  $cte =~ s/\s+\z//;
+  $cte =~ s/;.+//; # For S/MIME, etc.
+
   return $body unless $cte;
-  if (!$self->force_decode_hook and $cte =~ /^7bit|8bit|binary/i) {
+
+  if (!$self->force_decode_hook and $cte =~ /\A(?:7bit|8bit|binary)\z/i) {
     return $body;
   }
 
   $body = $self->decode_hook($body) if $self->can("decode_hook");
-
-  # For S/MIME, etc.
-  $cte =~ s/;.+//;
 
   $body = Email::MIME::Encodings::decode($cte, $body);
   return $body;
@@ -547,7 +550,7 @@ sub body_set {
   # object. -- rjbs, 2007-07-16
   unless (((caller(1))[3] || '') eq 'Email::Simple::new') {
     $body = Email::MIME::Encodings::encode($enc, $body)
-      unless !$enc || $enc =~ /^(?:7bit|8bit|binary)$/i;
+      unless !$enc || $enc =~ /^(?:7bit|8bit|binary)\s*$/i;
   }
 
   $self->{body_raw} = $body;
