@@ -21,7 +21,7 @@ Email::MIME - Easy MIME message parsing.
 
 =head1 VERSION
 
-version 1.902
+version 1.903
 
 =head1 SYNOPSIS
 
@@ -111,7 +111,7 @@ very long. Added to that, you have:
 
 =cut
 
-our $VERSION = '1.902';
+our $VERSION = '1.903';
 
 use vars qw[$CREATOR];
 $CREATOR = 'Email::MIME::Creator';
@@ -572,7 +572,7 @@ sub body_str_set {
 
   my $ct = parse_content_type($self->content_type);
   Carp::confess("body_str was given, but no charset is defined")
-    unless my $charset = $ct->{attributse}{charset};
+    unless my $charset = $ct->{attributes}{charset};
 
   my $body_octets = Encode::encode($charset, $body_str, 1);
   $self->body_set($body_octets);
@@ -688,7 +688,7 @@ sub parts_add {
 =head2 walk_parts
 
   $email->walk_parts(sub {
-      my $part = @_;
+      my ($part) = @_;
       return if $part->parts > 1; # multipart
       
       if ( $part->content_type =~ m[text/html] ) {
