@@ -21,7 +21,7 @@ Email::MIME - Easy MIME message parsing.
 
 =head1 VERSION
 
-version 1.903
+version 1.904
 
 =head1 SYNOPSIS
 
@@ -111,7 +111,7 @@ very long. Added to that, you have:
 
 =cut
 
-our $VERSION = '1.903';
+our $VERSION = '1.904';
 
 use vars qw[$CREATOR];
 $CREATOR = 'Email::MIME::Creator';
@@ -433,7 +433,7 @@ sub header_str_set {
   $email->content_type_set( 'text/html' );
 
 Change the content type. All C<Content-Type> header attributes
-will remain in tact.
+will remain intact.
 
 =cut
 
@@ -583,7 +583,7 @@ sub body_str_set {
   $email->disposition_set( 'attachment' );
 
 Alter the C<Content-Disposition> of a message. All header attributes
-will remain in tact.
+will remain intact.
 
 =cut
 
@@ -722,7 +722,11 @@ sub walk_parts {
     return $part;
   };
 
-  $walk->($self);
+  my $rv = $walk->($self);
+
+  undef $walk;
+
+  return $rv;
 }
 
 sub _compose_content_type {
