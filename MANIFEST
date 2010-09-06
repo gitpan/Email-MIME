@@ -30,4 +30,5 @@ t/pod.t
 t/read-nested.t
 t/singlepart.t
 t/unicode.t
+t/walk-parts.t
 META.yml                                 Module meta-data (added by MakeMaker)

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Email-MIME
-version:            1.904
+version:            1.905
 abstract:           ~
 author:  []
 license:            perl
