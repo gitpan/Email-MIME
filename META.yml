@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Email-MIME
-version:            1.905
+version:            1.906
 abstract:           ~
 author:  []
 license:            perl
@@ -17,7 +17,7 @@ requires:
     Email::Simple::Creator:  0
     Encode:               1.9801
     MIME::Types:          1.13
-    Test::More:           0.47
+    Test::More:           0.88
 resources:
     repository:  http://github.com/rjbs/email-mime
 no_index:
