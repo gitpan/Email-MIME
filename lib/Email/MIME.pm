@@ -1,4 +1,4 @@
-use 5.006;
+use 5.8.5;
 use strict;
 use warnings;
 
@@ -21,7 +21,7 @@ Email::MIME - Easy MIME message parsing.
 
 =head1 VERSION
 
-version 1.906
+version 1.907
 
 =head1 SYNOPSIS
 
@@ -111,10 +111,14 @@ very long. Added to that, you have:
 
 =cut
 
-our $VERSION = '1.906';
+our $VERSION = '1.907';
 
-use vars qw[$CREATOR];
-$CREATOR = 'Email::MIME::Creator';
+our $CREATOR = 'Email::MIME::Creator';
+
+my $NO_ENCODE_RE = qr/
+  \A
+  (?:7bit|8bit|binary)\s*(?:;|$)
+/ix;
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -296,7 +300,7 @@ sub body {
 
   return $body unless $cte;
 
-  if (!$self->force_decode_hook and $cte =~ /\A(?:7bit|8bit|binary)\z/i) {
+  if (!$self->force_decode_hook and $cte =~ $NO_ENCODE_RE) {
     return $body;
   }
 
@@ -550,7 +554,7 @@ sub body_set {
   # object. -- rjbs, 2007-07-16
   unless (((caller(1))[3] || '') eq 'Email::Simple::new') {
     $body = Email::MIME::Encodings::encode($enc, $body)
-      unless !$enc || $enc =~ /^(?:7bit|8bit|binary)\s*$/i;
+      unless !$enc || $enc =~ $NO_ENCODE_RE;
   }
 
   $self->{body_raw} = $body;
