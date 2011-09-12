@@ -28,4 +28,4 @@ requires:
   Test::More: 0.88
 resources:
   repository: http://github.com/rjbs/email-mime
-version: 1.909
+version: 1.910
