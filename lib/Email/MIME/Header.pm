@@ -3,8 +3,9 @@ use warnings;
 package Email::MIME::Header;
 use base 'Email::Simple::Header';
 
-our $VERSION = '1.911';
+our $VERSION = '1.912_01';
 
+use Email::MIME::Encode;
 use Encode 1.9801;
 
 =head1 NAME
@@ -57,7 +58,9 @@ sub header_raw {
 sub header_str_set {
   my ($self, $name, @vals) = @_;
 
-  my @values = map { Encode::encode('MIME-Q', $_, 1) } @vals;
+  my @values = map {
+    Email::MIME::Encode::maybe_mime_encode_header($name, $_, 'UTF-8')
+  } @vals;
 
   $self->header_set($name => @values);
 }

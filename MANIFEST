@@ -1,6 +1,7 @@
 Changes
 lib/Email/MIME.pm
 lib/Email/MIME/Creator.pm
+lib/Email/MIME/Encode.pm
 lib/Email/MIME/Header.pm
 lib/Email/MIME/Modifier.pm
 LICENSE

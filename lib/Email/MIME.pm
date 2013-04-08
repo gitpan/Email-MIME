@@ -10,6 +10,7 @@ use Carp ();
 use Email::MessageID;
 use Email::MIME::Creator;
 use Email::MIME::ContentType;
+use Email::MIME::Encode;
 use Email::MIME::Encodings 1.313;
 use Email::MIME::Header;
 use Email::MIME::Modifier;
@@ -21,7 +22,7 @@ Email::MIME - Easy MIME message parsing.
 
 =head1 VERSION
 
-version 1.911
+version 1.912_01
 
 =head1 SYNOPSIS
 
@@ -111,7 +112,7 @@ very long. Added to that, you have:
 
 =cut
 
-our $VERSION = '1.911';
+our $VERSION = '1.912_01';
 
 our $CREATOR = 'Email::MIME::Creator';
 
@@ -191,7 +192,9 @@ sub create {
     while (my ($key, $value) = splice @headers, 0, 2) {
       $headers{$key} = 1;
 
-      $value = Encode::encode('MIME-Q', $value, 1);
+      $value = Email::MIME::Encode::maybe_mime_encode_header(
+          $key, $value, 'UTF-8'
+      );
       $CREATOR->_add_to_header(\$header, $key, $value);
     }
   }
@@ -462,7 +465,7 @@ sub content_type_set {
 
 =head2 boundary_set
 
-  $email->charset_set( 'utf8' );
+  $email->charset_set( 'UTF-8' );
   $email->name_set( 'some_filename.txt' );
   $email->format_set( 'flowed' );
   $email->boundary_set( undef ); # remove the boundary
