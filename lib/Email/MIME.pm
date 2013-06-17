@@ -11,7 +11,7 @@ use Email::MessageID;
 use Email::MIME::Creator;
 use Email::MIME::ContentType;
 use Email::MIME::Encode;
-use Email::MIME::Encodings 1.313;
+use Email::MIME::Encodings 1.314;
 use Email::MIME::Header;
 use Email::MIME::Modifier;
 use Encode ();
@@ -22,7 +22,7 @@ Email::MIME - Easy MIME message parsing.
 
 =head1 VERSION
 
-version 1.912_01
+version 1.920
 
 =head1 SYNOPSIS
 
@@ -112,7 +112,7 @@ very long. Added to that, you have:
 
 =cut
 
-our $VERSION = '1.912_01';
+our $VERSION = '1.920';
 
 our $CREATOR = 'Email::MIME::Creator';
 
@@ -300,7 +300,7 @@ sub body {
   my $self = shift;
   my $body = $self->SUPER::body;
   my $cte  = $self->header("Content-Transfer-Encoding") || '';
-  
+
   $cte =~ s/\A\s+//;
   $cte =~ s/\s+\z//;
   $cte =~ s/;.+//; # For S/MIME, etc.
@@ -313,7 +313,7 @@ sub body {
 
   $body = $self->decode_hook($body) if $self->can("decode_hook");
 
-  $body = Email::MIME::Encodings::decode($cte, $body);
+  $body = Email::MIME::Encodings::decode($cte, $body, '7bit');
   return $body;
 }
 
@@ -724,9 +724,13 @@ sub walk_parts {
     my ($part) = @_;
     $callback->($part);
 
-    if ($part->subparts) {
-      my @subparts = map {; $walk->($_) } $part->subparts;
-      $part->parts_set(\@subparts);
+    if (my @orig_subparts = $part->subparts) {
+      my @subparts = map {; $walk->($_) } @orig_subparts;
+      my $differ
+        =  (@subparts != @orig_subparts)
+        or (grep { $subparts[$_] != $orig_subparts[$_] } (0 .. $#subparts));
+
+      $part->parts_set(\@subparts) if $differ;
     }
 
     return $part;
