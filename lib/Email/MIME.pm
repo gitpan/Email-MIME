@@ -3,114 +3,20 @@ use strict;
 use warnings;
 
 package Email::MIME;
-use Email::Simple 2.102;
-use base qw(Email::Simple);
+use Email::Simple 2.102; # crlf handling
+use parent qw(Email::Simple);
+# ABSTRACT: easy MIME message handling
 
 use Carp ();
 use Email::MessageID;
 use Email::MIME::Creator;
-use Email::MIME::ContentType;
+use Email::MIME::ContentType 1.011;
 use Email::MIME::Encode;
 use Email::MIME::Encodings 1.314;
 use Email::MIME::Header;
 use Email::MIME::Modifier;
-use Encode ();
+use Encode 1.9801 ();
 
-=head1 NAME
-
-Email::MIME - Easy MIME message parsing.
-
-=head1 VERSION
-
-version 1.920
-
-=head1 SYNOPSIS
-
-  use Email::MIME;
-  my $parsed = Email::MIME->new($message);
-
-  my @parts = $parsed->parts; # These will be Email::MIME objects, too.
-  my $decoded = $parsed->body;
-  my $non_decoded = $parsed->body_raw;
-
-  my $content_type = $parsed->content_type;
-
-...or...
-
-  use Email::MIME::Creator;
-  use IO::All;
-
-  # multipart message
-  my @parts = (
-      Email::MIME->create(
-          attributes => {
-              filename     => "report.pdf",
-              content_type => "application/pdf",
-              encoding     => "quoted-printable",
-              name         => "2004-financials.pdf",
-          },
-          body => io( "2004-financials.pdf" )->all,
-      ),
-      Email::MIME->create(
-          attributes => {
-              content_type => "text/plain",
-              disposition  => "attachment",
-              charset      => "US-ASCII",
-          },
-          body_str => "Hello there!",
-      ),
-  );
-
-  my $email = Email::MIME->create(
-      header_str => [ From => 'casey@geeknest.com' ],
-      parts      => [ @parts ],
-  );
-
-  # nesting parts
-  $email->parts_set(
-      [
-        $email->parts,
-        Email::MIME->create( parts => [ @parts ] ),
-      ],
-  );
-  
-  # standard modifications
-  $email->header_str_set( 'X-PoweredBy' => 'RT v3.0'      );
-  $email->header_str_set( To            => rcpts()        );
-  $email->header_str_set( Cc            => aux_rcpts()    );
-  $email->header_str_set( Bcc           => sekrit_rcpts() );
-
-  # more advanced
-  $_->encoding_set( 'base64' ) for $email->parts;
-  
-  # Quick multipart creation
-  my $quicky = Email::MIME->create(
-      header_str => [
-          From => 'my@address',
-          To   => 'your@address',
-      ],
-      parts => [
-          q[This is part one],
-          q[This is part two],
-          q[These could be binary too],
-      ],
-  );
-  
-  print $email->as_string;
-  
-=head1 DESCRIPTION
-
-This is an extension of the L<Email::Simple> module, to handle MIME
-encoded messages. It takes a message as a string, splits it up into its
-constituent parts, and allows you access to various parts of the
-message. Headers are decoded from MIME encoding.
-
-=head1 METHODS
-
-Please see L<Email::Simple> for the base set of methods. It won't take
-very long. Added to that, you have:
-
-=cut
 
 our $VERSION = '1.920';
 
@@ -128,49 +34,6 @@ sub new {
   return $self;
 }
 
-=head2 create
-
-  my $single = Email::MIME->create(
-    header_str => [ ... ],
-    body_str   => '...',
-    attributes => { ... },
-  );
-  
-  my $multi = Email::MIME->create(
-    header_str => [ ... ],
-    parts      => [ ... ],
-    attributes => { ... },
-  );
-
-This method creates a new MIME part. The C<header_str> parameter is a list of
-headers pairs to include in the message. The value for each pair is expected to
-be a text string that will be MIME-encoded as needed.  A similar C<header>
-parameter can be provided in addition to or instead of C<header_str>.  Its
-values will be used verbatim.
-
-C<attributes> is a hash of MIME attributes to assign to the part, and may
-override portions of the header set in the C<header> parameter.
-
-The C<parts> parameter is a list reference containing C<Email::MIME>
-objects. Elements of the C<parts> list can also be a non-reference
-string of data. In that case, an C<Email::MIME> object will be created
-for you. Simple checks will determine if the part is binary or not, and
-all parts created in this fashion are encoded with C<base64>, just in case.
-
-If C<body> is given instead of C<parts>, it specifies the body to be used for a
-flat (subpart-less) MIME message.  It is assumed to be a sequence of octets.
-
-If C<body_str> is given instead of C<body> or C<parts>, it is assumed to be a
-character string to be used as the body.  If you provide a C<body_str>
-parameter, you B<must> provide C<charset> and C<encoding> attributes.
-
-Back to C<attributes>. The hash keys correspond directly to methods or
-modifying a message from C<Email::MIME::Modifier>. The allowed keys are:
-content_type, charset, name, format, boundary, encoding, disposition,
-and filename. They will be mapped to C<"$attr\_set"> for message
-modification.
-
-=cut
 
 sub create {
   my ($class, %args) = @_;
@@ -439,14 +302,6 @@ sub header_str_set {
   $self->header_obj->header_str_set(@_);
 }
 
-=head2 content_type_set
-
-  $email->content_type_set( 'text/html' );
-
-Change the content type. All C<Content-Type> header attributes
-will remain intact.
-
-=cut
 
 sub content_type_set {
   my ($self, $ct) = @_;
@@ -457,24 +312,6 @@ sub content_type_set {
   return $ct;
 }
 
-=head2 charset_set
-
-=head2 name_set
-
-=head2 format_set
-
-=head2 boundary_set
-
-  $email->charset_set( 'UTF-8' );
-  $email->name_set( 'some_filename.txt' );
-  $email->format_set( 'flowed' );
-  $email->boundary_set( undef ); # remove the boundary
-
-These four methods modify common C<Content-Type> attributes. If set to
-C<undef>, the attribute is removed. All other C<Content-Type> header
-information is preserved when modifying an attribute.
-
-=cut
 
 BEGIN {
   foreach my $attr (qw[charset name format]) {
@@ -509,18 +346,6 @@ sub boundary_set {
   $self->parts_set([ $self->parts ]) if $self->parts > 1;
 }
 
-=head2 encoding_set
-
-  $email->encoding_set( 'base64' );
-  $email->encoding_set( 'quoted-printable' );
-  $email->encoding_set( '8bit' );
-
-Convert the message body and alter the C<Content-Transfer-Encoding>
-header using this method. Your message body, the output of the C<body()>
-method, will remain the same. The raw body, output with the C<body_raw()>
-method, will be changed to reflect the new encoding.
-
-=cut
 
 sub encoding_set {
   my ($self, $enc) = @_;
@@ -530,17 +355,6 @@ sub encoding_set {
   $self->body_set($body);
 }
 
-=head2 body_set
-
-  $email->body_set( $unencoded_body_string );
-
-This method will encode the new body you send using the encoding
-specified in the C<Content-Transfer-Encoding> header, then set
-the body to the new encoded body.
-
-This method overrides the default C<body_set()> method.
-
-=cut
 
 sub body_set {
   my ($self, $body) = @_;
@@ -568,15 +382,6 @@ sub body_set {
   $self->SUPER::body_set($body_ref);
 }
 
-=head2 body_str_set
-
-  $email->body_str_set($unicode_str);
-
-This method behaves like C<body_set>, but assumes that the given value is a
-Unicode string that should be encoded into the message's charset before being
-set.  If the charset can't be determined, an exception is thrown.
-
-=cut
 
 sub body_str_set {
   my ($self, $body_str) = @_;
@@ -589,14 +394,6 @@ sub body_str_set {
   $self->body_set($body_octets);
 }
 
-=head2 disposition_set
-
-  $email->disposition_set( 'attachment' );
-
-Alter the C<Content-Disposition> of a message. All header attributes
-will remain intact.
-
-=cut
 
 sub disposition_set {
   my ($self, $dis) = @_;
@@ -608,14 +405,6 @@ sub disposition_set {
   $self->header_set('Content-Disposition' => $dis_header);
 }
 
-=head2 filename_set
-
-  $email->filename_set( 'boo.pdf' );
-
-Sets the filename attribute in the C<Content-Disposition> header. All other
-header information is preserved when setting this attribute.
-
-=cut
 
 sub filename_set {
   my ($self, $filename) = @_;
@@ -637,16 +426,6 @@ sub filename_set {
   $self->header_set('Content-Disposition' => $dis);
 }
 
-=head2 parts_set
-
-  $email->parts_set( \@new_parts );
-
-Replaces the parts for an object. Accepts a reference to a list of
-C<Email::MIME> objects, representing the new parts. If this message was
-originally a single part, the C<Content-Type> header will be changed to
-C<multipart/mixed>, and given a new boundary attribute.
-
-=cut
 
 sub parts_set {
   my ($self, $parts) = @_;
@@ -681,40 +460,12 @@ sub parts_set {
   $self->_reset_cids;
 }
 
-=head2 parts_add
-
-  $email->parts_add( \@more_parts );
-
-Adds MIME parts onto the current MIME part. This is a simple extension
-of C<parts_set> to make our lives easier. It accepts an array reference
-of additional parts.
-
-=cut
 
 sub parts_add {
   my ($self, $parts) = @_;
   $self->parts_set([ $self->parts, @{$parts}, ]);
 }
 
-=head2 walk_parts
-
-  $email->walk_parts(sub {
-      my ($part) = @_;
-      return if $part->subparts; # multipart
-      
-      if ( $part->content_type =~ m[text/html]i ) {
-          my $body = $part->body;
-          $body =~ s/<link [^>]+>//; # simple filter example
-          $part->body_set( $body );
-      }
-  });
-
-Walks through all the MIME parts in a message and applies a callback to
-each. Accepts a code reference as its only argument. The code reference
-will be passed a single argument, the current MIME part within the
-top-level MIME object. All changes will be applied in place.
-
-=cut
 
 sub walk_parts {
   my ($self, $callback) = @_;
@@ -790,6 +541,242 @@ sub _reset_cids {
 
 __END__
 
+=pod
+
+=head1 NAME
+
+Email::MIME - easy MIME message handling
+
+=head1 VERSION
+
+version 1.921
+
+=head1 SYNOPSIS
+
+  use Email::MIME;
+  my $parsed = Email::MIME->new($message);
+
+  my @parts = $parsed->parts; # These will be Email::MIME objects, too.
+  my $decoded = $parsed->body;
+  my $non_decoded = $parsed->body_raw;
+
+  my $content_type = $parsed->content_type;
+
+...or...
+
+  use Email::MIME::Creator;
+  use IO::All;
+
+  # multipart message
+  my @parts = (
+      Email::MIME->create(
+          attributes => {
+              filename     => "report.pdf",
+              content_type => "application/pdf",
+              encoding     => "quoted-printable",
+              name         => "2004-financials.pdf",
+          },
+          body => io( "2004-financials.pdf" )->all,
+      ),
+      Email::MIME->create(
+          attributes => {
+              content_type => "text/plain",
+              disposition  => "attachment",
+              charset      => "US-ASCII",
+          },
+          body_str => "Hello there!",
+      ),
+  );
+
+  my $email = Email::MIME->create(
+      header_str => [ From => 'casey@geeknest.com' ],
+      parts      => [ @parts ],
+  );
+
+  # nesting parts
+  $email->parts_set(
+      [
+        $email->parts,
+        Email::MIME->create( parts => [ @parts ] ),
+      ],
+  );
+  
+  # standard modifications
+  $email->header_str_set( 'X-PoweredBy' => 'RT v3.0'      );
+  $email->header_str_set( To            => rcpts()        );
+  $email->header_str_set( Cc            => aux_rcpts()    );
+  $email->header_str_set( Bcc           => sekrit_rcpts() );
+
+  # more advanced
+  $_->encoding_set( 'base64' ) for $email->parts;
+  
+  # Quick multipart creation
+  my $quicky = Email::MIME->create(
+      header_str => [
+          From => 'my@address',
+          To   => 'your@address',
+      ],
+      parts => [
+          q[This is part one],
+          q[This is part two],
+          q[These could be binary too],
+      ],
+  );
+  
+  print $email->as_string;
+
+=head1 DESCRIPTION
+
+This is an extension of the L<Email::Simple> module, to handle MIME
+encoded messages. It takes a message as a string, splits it up into its
+constituent parts, and allows you access to various parts of the
+message. Headers are decoded from MIME encoding.
+
+=head1 METHODS
+
+=head2 create
+
+  my $single = Email::MIME->create(
+    header_str => [ ... ],
+    body_str   => '...',
+    attributes => { ... },
+  );
+
+  my $multi = Email::MIME->create(
+    header_str => [ ... ],
+    parts      => [ ... ],
+    attributes => { ... },
+  );
+
+This method creates a new MIME part. The C<header_str> parameter is a list of
+headers pairs to include in the message. The value for each pair is expected to
+be a text string that will be MIME-encoded as needed.  A similar C<header>
+parameter can be provided in addition to or instead of C<header_str>.  Its
+values will be used verbatim.
+
+C<attributes> is a hash of MIME attributes to assign to the part, and may
+override portions of the header set in the C<header> parameter.
+
+The C<parts> parameter is a list reference containing C<Email::MIME>
+objects. Elements of the C<parts> list can also be a non-reference
+string of data. In that case, an C<Email::MIME> object will be created
+for you. Simple checks will determine if the part is binary or not, and
+all parts created in this fashion are encoded with C<base64>, just in case.
+
+If C<body> is given instead of C<parts>, it specifies the body to be used for a
+flat (subpart-less) MIME message.  It is assumed to be a sequence of octets.
+
+If C<body_str> is given instead of C<body> or C<parts>, it is assumed to be a
+character string to be used as the body.  If you provide a C<body_str>
+parameter, you B<must> provide C<charset> and C<encoding> attributes.
+
+Back to C<attributes>. The hash keys correspond directly to methods or
+modifying a message from C<Email::MIME::Modifier>. The allowed keys are:
+content_type, charset, name, format, boundary, encoding, disposition,
+and filename. They will be mapped to C<"$attr\_set"> for message
+modification.
+
+=head2 content_type_set
+
+  $email->content_type_set( 'text/html' );
+
+Change the content type. All C<Content-Type> header attributes
+will remain intact.
+
+=head2 charset_set
+
+=head2 name_set
+
+=head2 format_set
+
+=head2 boundary_set
+
+  $email->charset_set( 'UTF-8' );
+  $email->name_set( 'some_filename.txt' );
+  $email->format_set( 'flowed' );
+  $email->boundary_set( undef ); # remove the boundary
+
+These four methods modify common C<Content-Type> attributes. If set to
+C<undef>, the attribute is removed. All other C<Content-Type> header
+information is preserved when modifying an attribute.
+
+=head2 encoding_set
+
+  $email->encoding_set( 'base64' );
+  $email->encoding_set( 'quoted-printable' );
+  $email->encoding_set( '8bit' );
+
+Convert the message body and alter the C<Content-Transfer-Encoding>
+header using this method. Your message body, the output of the C<body()>
+method, will remain the same. The raw body, output with the C<body_raw()>
+method, will be changed to reflect the new encoding.
+
+=head2 body_set
+
+  $email->body_set( $unencoded_body_string );
+
+This method will encode the new body you send using the encoding
+specified in the C<Content-Transfer-Encoding> header, then set
+the body to the new encoded body.
+
+This method overrides the default C<body_set()> method.
+
+=head2 body_str_set
+
+  $email->body_str_set($unicode_str);
+
+This method behaves like C<body_set>, but assumes that the given value is a
+Unicode string that should be encoded into the message's charset before being
+set.  If the charset can't be determined, an exception is thrown.
+
+=head2 disposition_set
+
+  $email->disposition_set( 'attachment' );
+
+Alter the C<Content-Disposition> of a message. All header attributes
+will remain intact.
+
+=head2 filename_set
+
+  $email->filename_set( 'boo.pdf' );
+
+Sets the filename attribute in the C<Content-Disposition> header. All other
+header information is preserved when setting this attribute.
+
+=head2 parts_set
+
+  $email->parts_set( \@new_parts );
+
+Replaces the parts for an object. Accepts a reference to a list of
+C<Email::MIME> objects, representing the new parts. If this message was
+originally a single part, the C<Content-Type> header will be changed to
+C<multipart/mixed>, and given a new boundary attribute.
+
+=head2 parts_add
+
+  $email->parts_add( \@more_parts );
+
+Adds MIME parts onto the current MIME part. This is a simple extension
+of C<parts_set> to make our lives easier. It accepts an array reference
+of additional parts.
+
+=head2 walk_parts
+
+  $email->walk_parts(sub {
+      my ($part) = @_;
+      return if $part->subparts; # multipart
+      
+      if ( $part->content_type =~ m[text/html]i ) {
+          my $body = $part->body;
+          $body =~ s/<link [^>]+>//; # simple filter example
+          $part->body_set( $body );
+      }
+  });
+
+Walks through all the MIME parts in a message and applies a callback to
+each. Accepts a code reference as its only argument. The code reference
+will be passed a single argument, the current MIME part within the
+top-level MIME object. All changes will be applied in place.
 
 =head2 header_str_set
 
@@ -805,6 +792,8 @@ This returns a list of C<Email::MIME> objects reflecting the parts of the
 message. If it's a single-part message, you get the original object back.
 
 In scalar context, this method returns the number of parts.
+
+This is a stupid method.  Don't use it.
 
 =head2 subparts
 
@@ -872,6 +861,11 @@ For example:
     + text/plain
     + text/html
 
+=head1 METHODS
+
+Please see L<Email::Simple> for the base set of methods. It won't take
+very long. Added to that, you have:
+
 =head1 TODO
 
 All of the Email::MIME-specific guts should move to a single entry on the
@@ -882,26 +876,34 @@ L<Email::MIME::Modifier>, sadly.
 
 L<Email::Simple>, L<Email::MIME::Modifier>, L<Email::MIME::Creator>.
 
-=head1 PERL EMAIL PROJECT
-
-This module is maintained by the Perl Email Project
-
-L<http://emailproject.perl.org/wiki/Email::MIME>
-
-=head1 AUTHOR
-
-Casey West, C<casey@geeknest.com>
-
-Simon Cozens, C<simon@cpan.org> (retired)
-
-This software is copyright (c) 2004 by Simon Cozens.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as perl itself.
-
 =head1 THANKS
 
 This module was generously sponsored by Best Practical
-(http://www.bestpractical.com/) and Pete Sergeant.
+(http://www.bestpractical.com/), Pete Sergeant, and Pobox.com.
+
+=head1 AUTHORS
+
+=over 4
+
+=item *
+
+Ricardo SIGNES <rjbs@cpan.org>
+
+=item *
+
+Casey West <casey@geeknest.com>
+
+=item *
+
+Simon Cozens <simon@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2004 by Simon Cozens and Casey West.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

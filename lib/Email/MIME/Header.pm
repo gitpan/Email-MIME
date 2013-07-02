@@ -1,42 +1,15 @@
 use strict;
 use warnings;
 package Email::MIME::Header;
-use base 'Email::Simple::Header';
-
-our $VERSION = '1.920';
+{
+  $Email::MIME::Header::VERSION = '1.921';
+}
+use parent 'Email::Simple::Header';
+# ABSTRACT: the header of a MIME message
 
 use Email::MIME::Encode;
 use Encode 1.9801;
 
-=head1 NAME
-
-Email::MIME::Header - the header of a MIME message
-
-=head1 DESCRIPTION
-
-This object behaves like a standard Email::Simple header, with the following
-changes:
-
-=over 4
-
-=item * the C<header> method automatically decodes encoded headers if possible
-
-=item * the C<header_raw> method returns the raw header; (read only for now)
-
-=item * stringification uses C<header_raw> rather than C<header>
-
-=back
-
-Note that C<header_set> does not do encoding for you, and expects an
-encoded header.  Thus, C<header_set> round-trips with C<header_raw>,
-not C<header>!  Be sure to properly encode your headers with
-C<Encode::encode('MIME-Header', $value)> before passing them to
-C<header_set>.
-
-Alternately, if you have Unicode (character) strings to set in headers, use the
-C<header_str_set> method.
-
-=cut
 
 sub header {
   my $self   = shift;
@@ -73,13 +46,73 @@ sub _header_decode_str {
   return $new_str;
 }
 
-=head1 COPYRIGHT
+1;
 
-This software is copyright (c) 2004 by Simon Cozens.
+__END__
+
+=pod
+
+=head1 NAME
+
+Email::MIME::Header - the header of a MIME message
+
+=head1 VERSION
+
+version 1.921
+
+=head1 DESCRIPTION
+
+This object behaves like a standard Email::Simple header, with the following
+changes:
+
+=over 4
+
+=item *
+
+the C<header> method automatically decodes encoded headers if possible
+
+=item *
+
+the C<header_raw> method returns the raw header; (read only for now)
+
+=item *
+
+stringification uses C<header_raw> rather than C<header>
+
+=back
+
+Note that C<header_set> does not do encoding for you, and expects an
+encoded header.  Thus, C<header_set> round-trips with C<header_raw>,
+not C<header>!  Be sure to properly encode your headers with
+C<Encode::encode('MIME-Header', $value)> before passing them to
+C<header_set>.
+
+Alternately, if you have Unicode (character) strings to set in headers, use the
+C<header_str_set> method.
+
+=head1 AUTHORS
+
+=over 4
+
+=item *
+
+Ricardo SIGNES <rjbs@cpan.org>
+
+=item *
+
+Casey West <casey@geeknest.com>
+
+=item *
+
+Simon Cozens <simon@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2004 by Simon Cozens and Casey West.
 
 This is free software; you can redistribute it and/or modify it under
-the same terms as perl itself.
+the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-1;

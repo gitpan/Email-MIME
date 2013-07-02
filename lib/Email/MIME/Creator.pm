@@ -1,10 +1,13 @@
-package Email::MIME::Creator;
+use 5.008001;
 use strict;
+use warnings;
+package Email::MIME::Creator;
+{
+  $Email::MIME::Creator::VERSION = '1.921';
+}
+# ABSTRACT: obsolete do-nothing library
 
-use vars qw[$VERSION];
-$VERSION = '1.920';
-
-use base q[Email::Simple::Creator];
+use parent q[Email::Simple::Creator];
 use Email::MIME;
 use Encode ();
 
@@ -28,28 +31,43 @@ sub _construct_part {
 
 __END__
 
+=pod
+
 =head1 NAME
 
 Email::MIME::Creator - obsolete do-nothing library
+
+=head1 VERSION
+
+version 1.921
 
 =head1 SYNOPSIS
 
 You don't need to use this module for anything.
 
-=head1 PERL EMAIL PROJECT
+=head1 AUTHORS
 
-This module is maintained by the Perl Email Project.
+=over 4
 
-L<http://emailproject.perl.org/wiki/Email::MIME::Creator>
+=item *
 
-=head1 ORIGINAL AUTHOR
+Ricardo SIGNES <rjbs@cpan.org>
 
-B<Do not send bug reports to>: Casey West, <F<casey@geeknest.com>>.
+=item *
 
-=head1 COPYRIGHT
+Casey West <casey@geeknest.com>
 
-  Copyright (c) 2004 Casey West.  All rights reserved.
-  This module is free software; you can redistribute it and/or modify it
-  under the same terms as Perl itself.
+=item *
+
+Simon Cozens <simon@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2004 by Simon Cozens and Casey West.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

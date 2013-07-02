@@ -1,14 +1,15 @@
 use strict;
-## no critic warnings
-
+use warnings;
 package Email::MIME::Modifier;
-
-use vars qw[$VERSION];
-$VERSION = '1.920';
-
-use Email::MIME;
-
+{
+  $Email::MIME::Modifier::VERSION = '1.921';
+}
+# ABSTRACT: obsolete do-nothing library
 1;
+
+__END__
+
+=pod
 
 =head1 NAME
 
@@ -16,22 +17,31 @@ Email::MIME::Modifier - obsolete do-nothing library
 
 =head1 VERSION
 
-version 1.920
+version 1.921
 
-=head1 PERL EMAIL PROJECT
+=head1 AUTHORS
 
-This module is maintained by the Perl Email Project
+=over 4
 
-L<http://emailproject.perl.org/wiki/Email::MIME>
+=item *
 
-=head1 AUTHOR
+Ricardo SIGNES <rjbs@cpan.org>
 
-Casey West, <F<casey@geeknest.com>>.
+=item *
 
-=head1 COPYRIGHT
+Casey West <casey@geeknest.com>
 
-  Copyright (c) 2004 Casey West.  All rights reserved.
-  This module is free software; you can redistribute it and/or modify it
-  under the same terms as Perl itself.
+=item *
+
+Simon Cozens <simon@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2004 by Simon Cozens and Casey West.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
