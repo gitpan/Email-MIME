@@ -3,6 +3,9 @@ use strict;
 use warnings;
 
 package Email::MIME;
+{
+  $Email::MIME::VERSION = '1.922';
+}
 use Email::Simple 2.102; # crlf handling
 use parent qw(Email::Simple);
 # ABSTRACT: easy MIME message handling
@@ -17,8 +20,6 @@ use Email::MIME::Header;
 use Email::MIME::Modifier;
 use Encode 1.9801 ();
 
-
-our $VERSION = '1.920';
 
 our $CREATOR = 'Email::MIME::Creator';
 
@@ -549,7 +550,7 @@ Email::MIME - easy MIME message handling
 
 =head1 VERSION
 
-version 1.921
+version 1.922
 
 =head1 SYNOPSIS
 

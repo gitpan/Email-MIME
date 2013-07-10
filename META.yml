@@ -39,7 +39,7 @@ resources:
   bugtracker: https://github.com/rjbs/Email-MIME/issues
   homepage: https://github.com/rjbs/Email-MIME
   repository: https://github.com/rjbs/Email-MIME.git
-version: 1.921
+version: 1.922
 x_Dist_Zilla:
   perl:
     version: 5.019001

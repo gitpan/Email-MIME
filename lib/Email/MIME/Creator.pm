@@ -3,7 +3,7 @@ use strict;
 use warnings;
 package Email::MIME::Creator;
 {
-  $Email::MIME::Creator::VERSION = '1.921';
+  $Email::MIME::Creator::VERSION = '1.922';
 }
 # ABSTRACT: obsolete do-nothing library
 
@@ -39,7 +39,7 @@ Email::MIME::Creator - obsolete do-nothing library
 
 =head1 VERSION
 
-version 1.921
+version 1.922
 
 =head1 SYNOPSIS
 
