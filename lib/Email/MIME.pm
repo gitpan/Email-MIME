@@ -4,7 +4,7 @@ use warnings;
 
 package Email::MIME;
 {
-  $Email::MIME::VERSION = '1.922';
+  $Email::MIME::VERSION = '1.923';
 }
 use Email::Simple 2.102; # crlf handling
 use parent qw(Email::Simple);
@@ -19,6 +19,7 @@ use Email::MIME::Encodings 1.314;
 use Email::MIME::Header;
 use Email::MIME::Modifier;
 use Encode 1.9801 ();
+use Scalar::Util qw(reftype);
 
 
 our $CREATOR = 'Email::MIME::Creator';
@@ -244,6 +245,7 @@ sub parts_multipart {
   my @parts;
   for my $bit (@bits) {
     $bit =~ s/\A[\n\r]+//smg;
+    $bit =~ s/$self->{mycrlf}\Z//smg;
     my $email = (ref $self)->new($bit);
     push @parts, $email;
   }
@@ -261,7 +263,7 @@ sub debug_structure {
   my ($self, $level) = @_;
   $level ||= 0;
   my $rv = " " x (5 * $level);
-  $rv .= "+ " . $self->content_type . "\n";
+  $rv .= "+ " . ($self->content_type || '') . "\n";
   my @parts = $self->parts;
   if (@parts > 1) { $rv .= $_->debug_structure($level + 1) for @parts; }
   return $rv;
@@ -362,6 +364,8 @@ sub body_set {
   my $body_ref;
 
   if (ref $body) {
+    Carp::croak("provided body reference is not a scalar reference")
+      unless reftype($body) eq 'SCALAR';
     $body_ref = $body;
     $body     = $$body_ref;
   } else {
@@ -550,9 +554,14 @@ Email::MIME - easy MIME message handling
 
 =head1 VERSION
 
-version 1.922
+version 1.923
 
 =head1 SYNOPSIS
+
+B<Wait!>  Before you read this, maybe you just need L<Email::Stuffer>, which is
+a much easier-to-use tool for building simple email messages that might have
+attachments or both plain text and HTML.  If that doesn't do it for you, then
+by all means keep reading.
 
   use Email::MIME;
   my $parsed = Email::MIME->new($message);
@@ -727,8 +736,12 @@ This method overrides the default C<body_set()> method.
   $email->body_str_set($unicode_str);
 
 This method behaves like C<body_set>, but assumes that the given value is a
-Unicode string that should be encoded into the message's charset before being
-set.  If the charset can't be determined, an exception is thrown.
+Unicode string that should be encoded into the message's charset
+before being set.
+
+The charset must already be set, either manually (via the C<attributes>
+argument to C<create> or C<charset_set>) or through the C<Content-Type> of a
+parsed message.  If the charset can't be determined, an exception is thrown.
 
 =head2 disposition_set
 

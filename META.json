@@ -6,7 +6,7 @@
       "Simon Cozens <simon@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300036, CPAN::Meta::Converter version 2.131560",
+   "generated_by" : "Dist::Zilla version 4.300036, CPAN::Meta::Converter version 2.132140",
    "license" : [
       "perl_5"
    ],
@@ -40,6 +40,7 @@
             "Encode" : "1.9801",
             "MIME::Base64" : "0",
             "MIME::Types" : "1.13",
+            "Scalar::Util" : "0",
             "parent" : "0",
             "perl" : "5.008001",
             "strict" : "0",
@@ -48,10 +49,10 @@
       },
       "test" : {
          "requires" : {
-            "File::Find" : "0",
-            "File::Temp" : "0",
+            "Capture::Tiny" : "0",
             "Symbol" : "0",
             "Test::More" : "0.96",
+            "blib" : "0",
             "utf8" : "0"
          }
       }
@@ -68,10 +69,10 @@
          "web" : "https://github.com/rjbs/Email-MIME"
       }
    },
-   "version" : "1.922",
+   "version" : "1.923",
    "x_Dist_Zilla" : {
       "perl" : {
-         "version" : "5.019001"
+         "version" : "5.019002"
       },
       "plugins" : [
          {
@@ -191,13 +192,23 @@
          },
          {
             "class" : "Dist::Zilla::Plugin::Test::Compile",
+            "config" : {
+               "Dist::Zilla::Plugin::Test::Compile" : {
+                  "module_finder" : [
+                     ":InstallModules"
+                  ],
+                  "script_finder" : [
+                     ":ExecFiles"
+                  ]
+               }
+            },
             "name" : "@RJBS/Test::Compile",
-            "version" : "2.002"
+            "version" : "2.018"
          },
          {
             "class" : "Dist::Zilla::Plugin::ReportVersions::Tiny",
             "name" : "@RJBS/ReportVersions::Tiny",
-            "version" : "1.08"
+            "version" : "1.09"
          },
          {
             "class" : "Dist::Zilla::Plugin::Prereqs",
@@ -213,12 +224,12 @@
          {
             "class" : "Dist::Zilla::Plugin::PodWeaver",
             "name" : "@RJBS/PodWeaver",
-            "version" : "3.101641"
+            "version" : "3.101642"
          },
          {
             "class" : "Dist::Zilla::Plugin::GithubMeta",
             "name" : "@RJBS/GithubMeta",
-            "version" : "0.28"
+            "version" : "0.30"
          },
          {
             "class" : "Dist::Zilla::Plugin::Git::Check",
