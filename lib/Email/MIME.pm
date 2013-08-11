@@ -4,7 +4,7 @@ use warnings;
 
 package Email::MIME;
 {
-  $Email::MIME::VERSION = '1.923';
+  $Email::MIME::VERSION = '1.924';
 }
 use Email::Simple 2.102; # crlf handling
 use parent qw(Email::Simple);
@@ -13,7 +13,7 @@ use parent qw(Email::Simple);
 use Carp ();
 use Email::MessageID;
 use Email::MIME::Creator;
-use Email::MIME::ContentType 1.011;
+use Email::MIME::ContentType 1.016; # type/subtype, not discrete/composite
 use Email::MIME::Encode;
 use Email::MIME::Encodings 1.314;
 use Email::MIME::Header;
@@ -150,8 +150,8 @@ sub fill_parts {
   my $self = shift;
 
   if (
-    $self->{ct}{discrete} eq "multipart"
-    or $self->{ct}{discrete} eq "message"
+    $self->{ct}{type} eq "multipart"
+    or $self->{ct}{type} eq "message"
   ) {
     $self->parts_multipart;
   } else {
@@ -197,9 +197,9 @@ sub body_str {
   my $encoding = $self->{ct}{attributes}{charset};
 
   unless ($encoding) {
-    if ($self->{ct}{discrete} eq 'text'
+    if ($self->{ct}{type} eq 'text'
       and
-      ($self->{ct}{composite} eq 'plain' or $self->{ct}{composite} eq 'html')
+      ($self->{ct}{subtype} eq 'plain' or $self->{ct}{subtype} eq 'html')
     ) {
 
       # assume that plaintext or html without ANY charset is us-ascii
@@ -284,7 +284,7 @@ sub filename {
     || $self->{ct}{attributes}{name};
   return $name if $name or !$force;
   return $gcache{$self} = $self->invent_filename(
-    $self->{ct}->{discrete} . "/" . $self->{ct}->{composite});
+    $self->{ct}->{type} . "/" . $self->{ct}->{subtype});
 }
 
 my $gname = 0;
@@ -309,7 +309,7 @@ sub header_str_set {
 sub content_type_set {
   my ($self, $ct) = @_;
   my $ct_header = parse_content_type($self->header('Content-Type'));
-  @{$ct_header}{qw[discrete composite]} = split m[/], $ct;
+  @{$ct_header}{qw[type subtype]} = split m[/], $ct;
   $self->_compose_content_type($ct_header);
   $self->_reset_cids;
   return $ct;
@@ -438,7 +438,7 @@ sub parts_set {
 
   my $ct_header = parse_content_type($self->header('Content-Type'));
 
-  if (@{$parts} > 1 or $ct_header->{discrete} eq 'multipart') {
+  if (@{$parts} > 1 or $ct_header->{type} eq 'multipart') {
 
     # setup multipart
     $ct_header->{attributes}->{boundary} ||= Email::MessageID->new->user;
@@ -448,13 +448,13 @@ sub parts_set {
       $body .= $part->as_string;
     }
     $body .= "$self->{mycrlf}--$bound--$self->{mycrlf}";
-    @{$ct_header}{qw[discrete composite]} = qw[multipart mixed]
-      unless grep { $ct_header->{discrete} eq $_ } qw[multipart message];
+    @{$ct_header}{qw[type subtype]} = qw[multipart mixed]
+      unless grep { $ct_header->{type} eq $_ } qw[multipart message];
   } elsif (@$parts == 1) {  # setup singlepart
     $body .= $parts->[0]->body;
-    @{$ct_header}{qw[discrete composite]}
+    @{$ct_header}{qw[type subtype]}
       = @{ parse_content_type($parts->[0]->header('Content-Type')) }
-      {qw[discrete composite]};
+      {qw[type subtype]};
     $self->encoding_set($parts->[0]->header('Content-Transfer-Encoding'));
     delete $ct_header->{attributes}->{boundary};
   }
@@ -501,7 +501,7 @@ sub walk_parts {
 
 sub _compose_content_type {
   my ($self, $ct_header) = @_;
-  my $ct = join q{/}, @{$ct_header}{qw[discrete composite]};
+  my $ct = join q{/}, @{$ct_header}{qw[type subtype]};
   for my $attr (sort keys %{ $ct_header->{attributes} }) {
     $ct .= qq[; $attr="$ct_header->{attributes}{$attr}"];
   }
@@ -519,7 +519,7 @@ sub _reset_cids {
   my $ct_header = parse_content_type($self->header('Content-Type'));
 
   if ($self->parts > 1) {
-    if ($ct_header->{composite} eq 'alternative') {
+    if ($ct_header->{subtype} eq 'alternative') {
       my %cids;
       for my $part ($self->parts) {
         my $cid
@@ -554,7 +554,7 @@ Email::MIME - easy MIME message handling
 
 =head1 VERSION
 
-version 1.923
+version 1.924
 
 =head1 SYNOPSIS
 

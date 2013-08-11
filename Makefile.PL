@@ -22,7 +22,7 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "Carp" => "0",
     "Email::Address" => "0",
-    "Email::MIME::ContentType" => "1.011",
+    "Email::MIME::ContentType" => "1.016",
     "Email::MIME::Encodings" => "1.314",
     "Email::MessageID" => "0",
     "Email::Simple" => "2.102",
@@ -43,7 +43,7 @@ my %WriteMakefileArgs = (
     "blib" => "0",
     "utf8" => "0"
   },
-  "VERSION" => "1.923",
+  "VERSION" => "1.924",
   "test" => {
     "TESTS" => "t/*.t"
   }

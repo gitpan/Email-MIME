@@ -31,7 +31,7 @@
          "requires" : {
             "Carp" : "0",
             "Email::Address" : "0",
-            "Email::MIME::ContentType" : "1.011",
+            "Email::MIME::ContentType" : "1.016",
             "Email::MIME::Encodings" : "1.314",
             "Email::MessageID" : "0",
             "Email::Simple" : "2.102",
@@ -69,7 +69,7 @@
          "web" : "https://github.com/rjbs/Email-MIME"
       }
    },
-   "version" : "1.923",
+   "version" : "1.924",
    "x_Dist_Zilla" : {
       "perl" : {
          "version" : "5.019002"

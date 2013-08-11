@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Email::MIME::Header;
 {
-  $Email::MIME::Header::VERSION = '1.923';
+  $Email::MIME::Header::VERSION = '1.924';
 }
 use parent 'Email::Simple::Header';
 # ABSTRACT: the header of a MIME message
@@ -58,7 +58,7 @@ Email::MIME::Header - the header of a MIME message
 
 =head1 VERSION
 
-version 1.923
+version 1.924
 
 =head1 DESCRIPTION
 
