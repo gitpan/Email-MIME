@@ -11,10 +11,8 @@ lib/Email/MIME/Creator.pm
 lib/Email/MIME/Encode.pm
 lib/Email/MIME/Header.pm
 lib/Email/MIME/Modifier.pm
-t/00-compile.t
 t/000-report-versions-tiny.t
 t/Mail/att-1.gif
-t/Mail/joejob
 t/Mail/mail-1
 t/Mail/mail-2
 t/Mail/nested-parts

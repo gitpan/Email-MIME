@@ -4,7 +4,7 @@ use warnings;
 
 package Email::MIME;
 {
-  $Email::MIME::VERSION = '1.924';
+  $Email::MIME::VERSION = '1.925';
 }
 use Email::Simple 2.102; # crlf handling
 use parent qw(Email::Simple);
@@ -475,6 +475,8 @@ sub parts_add {
 sub walk_parts {
   my ($self, $callback) = @_;
 
+  my %changed;
+
   my $walk;
   $walk = sub {
     my ($part) = @_;
@@ -484,9 +486,13 @@ sub walk_parts {
       my @subparts = map {; $walk->($_) } @orig_subparts;
       my $differ
         =  (@subparts != @orig_subparts)
-        or (grep { $subparts[$_] != $orig_subparts[$_] } (0 .. $#subparts));
+        || (grep { $subparts[$_] != $orig_subparts[$_] } (0 .. $#subparts))
+        || (grep { $changed{ 0+$subparts[$_] } } (0 .. $#subparts));
 
-      $part->parts_set(\@subparts) if $differ;
+      if ($differ) {
+        $part->parts_set(\@subparts);
+        $changed{ 0+$part }++;
+      }
     }
 
     return $part;
@@ -554,7 +560,7 @@ Email::MIME - easy MIME message handling
 
 =head1 VERSION
 
-version 1.924
+version 1.925
 
 =head1 SYNOPSIS
 
