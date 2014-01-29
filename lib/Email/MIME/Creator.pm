@@ -2,11 +2,8 @@ use 5.008001;
 use strict;
 use warnings;
 package Email::MIME::Creator;
-{
-  $Email::MIME::Creator::VERSION = '1.925';
-}
 # ABSTRACT: obsolete do-nothing library
-
+$Email::MIME::Creator::VERSION = '1.926';
 use parent q[Email::Simple::Creator];
 use Email::MIME;
 use Encode ();
@@ -29,9 +26,17 @@ sub _construct_part {
 
 1;
 
+# =head1 SYNOPSIS
+#
+# You don't need to use this module for anything.
+#
+# =cut
+
 __END__
 
 =pod
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -39,7 +44,7 @@ Email::MIME::Creator - obsolete do-nothing library
 
 =head1 VERSION
 
-version 1.925
+version 1.926
 
 =head1 SYNOPSIS
 

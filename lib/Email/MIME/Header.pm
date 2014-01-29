@@ -1,21 +1,40 @@
 use strict;
 use warnings;
 package Email::MIME::Header;
-{
-  $Email::MIME::Header::VERSION = '1.925';
-}
-use parent 'Email::Simple::Header';
 # ABSTRACT: the header of a MIME message
+$Email::MIME::Header::VERSION = '1.926';
+use parent 'Email::Simple::Header';
 
 use Email::MIME::Encode;
 use Encode 1.9801;
 
+# =head1 DESCRIPTION
+#
+# This object behaves like a standard Email::Simple header, with the following
+# changes:
+#
+# =for :list
+# * the C<header> method automatically decodes encoded headers if possible
+# * the C<header_raw> method returns the raw header; (read only for now)
+# * stringification uses C<header_raw> rather than C<header>
+#
+# Note that C<header_set> does not do encoding for you, and expects an
+# encoded header.  Thus, C<header_set> round-trips with C<header_raw>,
+# not C<header>!  Be sure to properly encode your headers with
+# C<Encode::encode('MIME-Header', $value)> before passing them to
+# C<header_set>.
+#
+# Alternately, if you have Unicode (character) strings to set in headers, use the
+# C<header_str_set> method.
+#
+# =cut
 
 sub header {
   my $self   = shift;
   my @header = $self->SUPER::header(@_);
   local $@;
   foreach my $header (@header) {
+    next unless defined $header;
     next unless $header =~ /=\?/;
     $header = $self->_header_decode_str($header);
   }
@@ -52,13 +71,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Email::MIME::Header - the header of a MIME message
 
 =head1 VERSION
 
-version 1.925
+version 1.926
 
 =head1 DESCRIPTION
 

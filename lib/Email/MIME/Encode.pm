@@ -1,11 +1,8 @@
 use strict;
 use warnings;
 package Email::MIME::Encode;
-{
-  $Email::MIME::Encode::VERSION = '1.925';
-}
 # ABSTRACT: a private helper for MIME header encoding
-
+$Email::MIME::Encode::VERSION = '1.926';
 use Email::Address;
 use Encode ();
 use MIME::Base64();
@@ -28,6 +25,7 @@ my %encoders = (
 sub maybe_mime_encode_header {
     my ($header, $val, $charset) = @_;
 
+    return $val unless defined $val;
     return $val unless $val =~ /\P{ASCII}/
                     || $val =~ /=\?/;
 
@@ -56,10 +54,10 @@ sub _mailbox_list_encode {
     @addrs = map {
         my $phrase = $_->phrase;
         $_->phrase(mime_encode($phrase, $charset))
-            if $phrase =~ /\P{ASCII}/;
+            if defined $phrase && $phrase =~ /\P{ASCII}/;
         my $comment = $_->comment;
         $_->comment(mime_encode($comment, $charset))
-            if $comment =~ /\P{ASCII}/;
+            if defined $comment && $comment =~ /\P{ASCII}/;
         $_;
     } @addrs;
 
@@ -126,13 +124,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Email::MIME::Encode - a private helper for MIME header encoding
 
 =head1 VERSION
 
-version 1.925
+version 1.926
 
 =head1 AUTHORS
 
