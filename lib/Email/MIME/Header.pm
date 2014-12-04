@@ -2,43 +2,50 @@ use strict;
 use warnings;
 package Email::MIME::Header;
 # ABSTRACT: the header of a MIME message
-$Email::MIME::Header::VERSION = '1.926';
+$Email::MIME::Header::VERSION = '1.927';
 use parent 'Email::Simple::Header';
 
 use Email::MIME::Encode;
 use Encode 1.9801;
 
-# =head1 DESCRIPTION
-#
-# This object behaves like a standard Email::Simple header, with the following
-# changes:
-#
-# =for :list
-# * the C<header> method automatically decodes encoded headers if possible
-# * the C<header_raw> method returns the raw header; (read only for now)
-# * stringification uses C<header_raw> rather than C<header>
-#
-# Note that C<header_set> does not do encoding for you, and expects an
-# encoded header.  Thus, C<header_set> round-trips with C<header_raw>,
-# not C<header>!  Be sure to properly encode your headers with
-# C<Encode::encode('MIME-Header', $value)> before passing them to
-# C<header_set>.
-#
-# Alternately, if you have Unicode (character) strings to set in headers, use the
-# C<header_str_set> method.
-#
-# =cut
+#pod =head1 DESCRIPTION
+#pod
+#pod This object behaves like a standard Email::Simple header, with the following
+#pod changes:
+#pod
+#pod =for :list
+#pod * the C<header> method automatically decodes encoded headers if possible
+#pod * the C<header_raw> method returns the raw header; (read only for now)
+#pod * stringification uses C<header_raw> rather than C<header>
+#pod
+#pod Note that C<header_set> does not do encoding for you, and expects an
+#pod encoded header.  Thus, C<header_set> round-trips with C<header_raw>,
+#pod not C<header>!  Be sure to properly encode your headers with
+#pod C<Encode::encode('MIME-Header', $value)> before passing them to
+#pod C<header_set>.
+#pod
+#pod Alternately, if you have Unicode (character) strings to set in headers, use the
+#pod C<header_str_set> method.
+#pod
+#pod =cut
 
 sub header {
-  my $self   = shift;
-  my @header = $self->SUPER::header(@_);
+  my $self  = shift;
+  my $wanta = wantarray;
+
+  return unless defined $wanta; # ??
+
+  my @header = $wanta ? $self->SUPER::header(@_)
+                      : scalar $self->SUPER::header(@_);
+
   local $@;
   foreach my $header (@header) {
     next unless defined $header;
     next unless $header =~ /=\?/;
-    $header = $self->_header_decode_str($header);
+
+    _maybe_decode(\$header);
   }
-  return wantarray ? (@header) : $header[0];
+  return $wanta ? @header : $header[0];
 }
 
 sub header_raw {
@@ -57,12 +64,27 @@ sub header_str_set {
   $self->header_set($name => @values);
 }
 
-sub _header_decode_str {
-  my ($self, $str) = @_;
-  my $new_str;
-  $new_str = $str
-    unless eval { $new_str = Encode::decode("MIME-Header", $str); 1 };
-  return $new_str;
+sub header_str_pairs {
+  my ($self) = @_;
+
+  my @pairs = $self->header_pairs;
+  for (grep { $_ % 2 } (1 .. $#pairs)) {
+    _maybe_decode(\$pairs[$_]);
+  }
+
+  return @pairs;
+}
+
+sub _maybe_decode {
+  my ($str_ref) = @_;
+
+  # The eval is to cope with unknown encodings, like Latin-62, or other
+  # nonsense that gets put in there by spammers and weirdos
+  # -- rjbs, 2014-12-04
+  my $new;
+  $$str_ref = $new
+    if eval { $new = Encode::decode("MIME-Header", $$str_ref); 1 };
+  return;
 }
 
 1;
@@ -79,7 +101,7 @@ Email::MIME::Header - the header of a MIME message
 
 =head1 VERSION
 
-version 1.926
+version 1.927
 
 =head1 DESCRIPTION
 

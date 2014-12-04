@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Email::MIME::Encode;
 # ABSTRACT: a private helper for MIME header encoding
-$Email::MIME::Encode::VERSION = '1.926';
+$Email::MIME::Encode::VERSION = '1.927';
 use Email::Address;
 use Encode ();
 use MIME::Base64();
@@ -132,7 +132,7 @@ Email::MIME::Encode - a private helper for MIME header encoding
 
 =head1 VERSION
 
-version 1.926
+version 1.927
 
 =head1 AUTHORS
 
