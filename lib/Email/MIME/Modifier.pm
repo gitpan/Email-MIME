@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Email::MIME::Modifier;
 # ABSTRACT: obsolete do-nothing library
-$Email::MIME::Modifier::VERSION = '1.927';
+$Email::MIME::Modifier::VERSION = '1.928';
 1;
 
 __END__
@@ -17,7 +17,7 @@ Email::MIME::Modifier - obsolete do-nothing library
 
 =head1 VERSION
 
-version 1.927
+version 1.928
 
 =head1 AUTHORS
 

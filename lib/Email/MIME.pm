@@ -3,7 +3,7 @@ use strict;
 use warnings;
 package Email::MIME;
 # ABSTRACT: easy MIME message handling
-$Email::MIME::VERSION = '1.927';
+$Email::MIME::VERSION = '1.928';
 use Email::Simple 2.102; # crlf handling
 use parent qw(Email::Simple);
 
@@ -48,7 +48,7 @@ use Scalar::Util qw(reftype);
 #pod               encoding     => "quoted-printable",
 #pod               name         => "2004-financials.pdf",
 #pod           },
-#pod           body => io( "2004-financials.pdf" )->all,
+#pod           body => io( "2004-financials.pdf" )->binary->all,
 #pod       ),
 #pod       Email::MIME->create(
 #pod           attributes => {
@@ -675,6 +675,8 @@ sub parts_set {
     $body .= "$self->{mycrlf}--$bound--$self->{mycrlf}";
     @{$ct_header}{qw[type subtype]} = qw[multipart mixed]
       unless grep { $ct_header->{type} eq $_ } qw[multipart message];
+    $self->encoding_set('7bit');
+    delete $ct_header->{attributes}{charset};
   } elsif (@$parts == 1) {  # setup singlepart
     $body .= $parts->[0]->body;
     @{$ct_header}{qw[type subtype]}
@@ -736,11 +738,20 @@ sub walk_parts {
     $callback->($part);
 
     if (my @orig_subparts = $part->subparts) {
-      my @subparts = map {; $walk->($_) } @orig_subparts;
-      my $differ
-        =  (@subparts != @orig_subparts)
-        || (grep { $subparts[$_] != $orig_subparts[$_] } (0 .. $#subparts))
-        || (grep { $changed{ 0+$subparts[$_] } } (0 .. $#subparts));
+      my $differ;
+      my @subparts;
+
+      for my $part (@orig_subparts) {
+        my $str = $part->as_string;
+        next unless my $new = $walk->($part);
+        $differ = 1 if $str ne $new->as_string;
+        push @subparts, $new;
+      }
+
+      $differ
+        ||=  (@subparts != @orig_subparts)
+        ||   (grep { $subparts[$_] != $orig_subparts[$_] } (0 .. $#subparts))
+        ||   (grep { $changed{ 0+$subparts[$_] } } (0 .. $#subparts));
 
       if ($differ) {
         $part->parts_set(\@subparts);
@@ -813,7 +824,7 @@ Email::MIME - easy MIME message handling
 
 =head1 VERSION
 
-version 1.927
+version 1.928
 
 =head1 SYNOPSIS
 
@@ -845,7 +856,7 @@ by all means keep reading.
               encoding     => "quoted-printable",
               name         => "2004-financials.pdf",
           },
-          body => io( "2004-financials.pdf" )->all,
+          body => io( "2004-financials.pdf" )->binary->all,
       ),
       Email::MIME->create(
           attributes => {
